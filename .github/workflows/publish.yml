@@ -21,13 +21,13 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v6.5.0
       with:
-        go-version: '1.22' # Change this to match your Go version
+        go-version: '1.26.4' # Change this to match your Go version
 
     # 3. Build the Go binary for Raspberry Pi 4 (ARM64)
     - name: Build Go Binary
       run: |
         mkdir -p ./build
-        GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o ./build/hou-yi .
+        GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o ./build/hou-yi .
 
     # 4. Set up QEMU for multi-architecture Docker builds
     - name: Set up QEMU
