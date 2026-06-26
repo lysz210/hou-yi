@@ -5,6 +5,10 @@ on:
     branches: [ "main" ]
   workflow_dispatch: # Allows you to manually run this workflow from the Actions tab
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -44,6 +48,15 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v6
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=raw,value=latest
+          type=sha,format=short
+
     # 7. Build the Docker image and push to GHCR
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v7.2.0
@@ -52,6 +65,5 @@ jobs:
         file: ./Dockerfile
         platforms: linux/arm64
         push: true
-        tags: |
-          ghcr.io/${{ github.repository }}/hou-yi:latest
-          ghcr.io/${{ github.repository }}/hou-yi:${{ github.sha }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
